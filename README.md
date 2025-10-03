@@ -1,94 +1,65 @@
-VitalsFirst – Healthcare Patient Triage and Scheduling System
-📌 Project Overview
+**# VitalsFirst – Healthcare Patient Triage and Scheduling System**
 
-VitalsFirst is a role-based healthcare management system designed to streamline patient triaging, scheduling, and hospital administration. The platform allows patients, doctors, nurses, and administrators to log in through a secure portal and access role-specific dashboards. It integrates triage prioritization, appointment scheduling, staff allocation, and report generation into one unified system.
+## 📌 **Project Overview**
+**VitalsFirst** is a role-based healthcare management system designed to streamline **patient triaging, scheduling, and hospital administration**. The platform allows patients, doctors, nurses, and administrators to log in through a secure portal and access role-specific dashboards. It integrates triage prioritization, appointment scheduling, staff allocation, and report generation into one unified system.
 
-🚀 Features
+## 🚀 Features
+- **Role-Based Login Portal**  
+  - Nurse, Doctor, Administrator, and Patient access.  
+  - JWT-based authentication with protected routes.  
 
-Role-Based Login Portal
+- **Dashboards by Role**  
+  - **Nurse**: Triage module, staff allocation, alerts & notifications.  
+  - **Doctor**: Triage results, scheduling, report generation, emergency alerts.  
+  - **Administrator**: Staff allocation, workload reports, scheduling management.  
+  - **Patient**: Registration, appointment booking/rescheduling, triage status updates, notifications.  
 
-Nurse, Doctor, Administrator, and Patient access.
+- **Healthcare-Specific Functions**  
+  - Rule-based + ML-augmented triage suggestions (future scope).  
+  - Real-time notifications for emergencies.  
+  - Report generation for compliance and workload management.  
 
-JWT-based authentication with protected routes.
+## 🛠️ **Tech Stack**
+- **Frontend**: React + Tailwind CSS  
+- **Backend**: Node.js + Express.js  
+- **Database**: MongoDB with Mongoose  
+- **Authentication**: JWT (JSON Web Tokens)  
+- **Deployment**: Ready for Cloud (AWS / Vercel / Render)  
 
-Dashboards by Role
-
-Nurse: Triage module, staff allocation, alerts & notifications.
-
-Doctor: Triage results, scheduling, report generation, emergency alerts.
-
-Administrator: Staff allocation, workload reports, scheduling management.
-
-Patient: Registration, appointment booking/rescheduling, triage status updates, notifications.
-
-Healthcare-Specific Functions
-
-Rule-based + ML-augmented triage suggestions (future scope).
-
-Real-time notifications for emergencies.
-
-Report generation for compliance and workload management.
-
-🛠️ Tech Stack
-
-Frontend: React + Tailwind CSS
-
-Backend: Node.js + Express.js
-
-Database: MongoDB with Mongoose
-
-Authentication: JWT (JSON Web Tokens)
-
-Deployment: Ready for Cloud (AWS / Vercel / Render)
-
-📂 Project Structure
+## 📂 **Project Structure**
 VitalsFirst/
 │
-├── client/                 # React frontend
-│   ├── public/             # Static assets
-│   ├── src/                # Components, pages, styles
-│   └── package.json
+├── client/ # React frontend
+│ ├── public/ # Static assets
+│ ├── src/ # Components, pages, styles
+│ └── package.json
 │
-├── server/                 # Express backend
-│   ├── models/             # Mongoose models (User, Patient, Appointment)
-│   ├── routes/             # API routes (auth, triage, scheduling, reports)
-│   ├── controllers/        # Route controllers
-│   ├── config/             # DB connection, JWT middleware
-│   └── package.json
+├── server/ # Express backend
+│ ├── models/ # Mongoose models (User, Patient, Appointment)
+│ ├── routes/ # API routes (auth, triage, scheduling, reports)
+│ ├── controllers/ # Route controllers
+│ ├── config/ # DB connection, JWT middleware
+│ └── package.json
 │
-├── .env.example            # Sample environment variables
-├── README.md               # Project documentation
-└── package.json            # Root config
-
-⚙️ Installation & Setup
-
-Clone the repository
-
-git clone <repo-url>
-cd VitalsFirst
+├── .env.example # Sample environment variables
+├── README.md # Project documentation
+└── package.json # Root config
 
 
-Setup Backend
-
+## ⚙️ Installation & Setup
+1. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd VitalsFirst
 cd server
 npm install
 cp .env.example .env    # Update MongoDB URI, JWT secret
 npm start
-
-
-Setup Frontend
-
 cd client
 npm install
 npm run dev
 
-
-Access the app
-Open http://localhost:5173
- for the frontend.
-The backend runs on http://localhost:5000.
-
-🔑 Default Roles & Login
+**Default Roles & Login**
 
 Admin: Can manage staff allocation, scheduling, reports.
 
@@ -98,9 +69,7 @@ Nurse: Can triage patients and manage alerts.
 
 Patient: Can register, login, and book appointments.
 
-(Add default seeded users here once you configure them in the database.)
-
-📈 Future Enhancements
+**Future Enhancements**
 
 Integration with Electronic Health Records (EHR).
 
