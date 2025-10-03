@@ -1,73 +1,111 @@
-# Welcome to your Lovable project
+VitalsFirst – Healthcare Patient Triage and Scheduling System
+📌 Project Overview
 
-## Project info
+VitalsFirst is a role-based healthcare management system designed to streamline patient triaging, scheduling, and hospital administration. The platform allows patients, doctors, nurses, and administrators to log in through a secure portal and access role-specific dashboards. It integrates triage prioritization, appointment scheduling, staff allocation, and report generation into one unified system.
 
-**URL**: https://lovable.dev/projects/498557bf-e942-4446-ba6b-31204f6eafa5
+🚀 Features
 
-## How can I edit this code?
+Role-Based Login Portal
 
-There are several ways of editing your application.
+Nurse, Doctor, Administrator, and Patient access.
 
-**Use Lovable**
+JWT-based authentication with protected routes.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/498557bf-e942-4446-ba6b-31204f6eafa5) and start prompting.
+Dashboards by Role
 
-Changes made via Lovable will be committed automatically to this repo.
+Nurse: Triage module, staff allocation, alerts & notifications.
 
-**Use your preferred IDE**
+Doctor: Triage results, scheduling, report generation, emergency alerts.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Administrator: Staff allocation, workload reports, scheduling management.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Patient: Registration, appointment booking/rescheduling, triage status updates, notifications.
 
-Follow these steps:
+Healthcare-Specific Functions
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Rule-based + ML-augmented triage suggestions (future scope).
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Real-time notifications for emergencies.
 
-# Step 3: Install the necessary dependencies.
-npm i
+Report generation for compliance and workload management.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+🛠️ Tech Stack
+
+Frontend: React + Tailwind CSS
+
+Backend: Node.js + Express.js
+
+Database: MongoDB with Mongoose
+
+Authentication: JWT (JSON Web Tokens)
+
+Deployment: Ready for Cloud (AWS / Vercel / Render)
+
+📂 Project Structure
+VitalsFirst/
+│
+├── client/                 # React frontend
+│   ├── public/             # Static assets
+│   ├── src/                # Components, pages, styles
+│   └── package.json
+│
+├── server/                 # Express backend
+│   ├── models/             # Mongoose models (User, Patient, Appointment)
+│   ├── routes/             # API routes (auth, triage, scheduling, reports)
+│   ├── controllers/        # Route controllers
+│   ├── config/             # DB connection, JWT middleware
+│   └── package.json
+│
+├── .env.example            # Sample environment variables
+├── README.md               # Project documentation
+└── package.json            # Root config
+
+⚙️ Installation & Setup
+
+Clone the repository
+
+git clone <repo-url>
+cd VitalsFirst
+
+
+Setup Backend
+
+cd server
+npm install
+cp .env.example .env    # Update MongoDB URI, JWT secret
+npm start
+
+
+Setup Frontend
+
+cd client
+npm install
 npm run dev
-```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Access the app
+Open http://localhost:5173
+ for the frontend.
+The backend runs on http://localhost:5000.
 
-**Use GitHub Codespaces**
+🔑 Default Roles & Login
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Admin: Can manage staff allocation, scheduling, reports.
 
-## What technologies are used for this project?
+Doctor: Can access triage results, appointments, reports.
 
-This project is built with:
+Nurse: Can triage patients and manage alerts.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Patient: Can register, login, and book appointments.
 
-## How can I deploy this project?
+(Add default seeded users here once you configure them in the database.)
 
-Simply open [Lovable](https://lovable.dev/projects/498557bf-e942-4446-ba6b-31204f6eafa5) and click on Share -> Publish.
+📈 Future Enhancements
 
-## Can I connect a custom domain to my Lovable project?
+Integration with Electronic Health Records (EHR).
 
-Yes, you can!
+AI/ML-based triage recommendation engine.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Push notifications & SMS alerts.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Cloud deployment with CI/CD.
