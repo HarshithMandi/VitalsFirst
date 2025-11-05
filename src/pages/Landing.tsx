@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Activity, Users, Shield, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Activity, Users, Shield, User, UserPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 
@@ -74,6 +75,23 @@ const Landing = () => {
               </Card>
             );
           })}
+        </div>
+
+        {/* New Patient Registration Section */}
+        <div className="mt-12 text-center">
+          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-lg p-8 border border-blue-200 dark:border-blue-800">
+            <UserPlus className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+            <h3 className="text-2xl font-semibold mb-2 text-blue-900 dark:text-blue-100">New Patient?</h3>
+            <p className="text-blue-700 dark:text-blue-300 mb-6">
+              Register as a new patient to book appointments and access your health records
+            </p>
+            <Button 
+              onClick={() => navigate('/register/patient')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+            >
+              Register as Patient
+            </Button>
+          </div>
         </div>
 
         <div className="mt-12 text-center text-sm text-muted-foreground">

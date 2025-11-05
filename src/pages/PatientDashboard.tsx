@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, FileText, Activity, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const PatientDashboard = () => {
+  const navigate = useNavigate();
   const stats = [
     { label: 'Upcoming Appointments', value: '2', icon: Calendar, color: 'text-blue-600' },
     { label: 'Medical Records', value: '8', icon: FileText, color: 'text-purple-600' },
@@ -42,7 +44,7 @@ const PatientDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>My Appointments</CardTitle>
-            <Button>Book New Appointment</Button>
+            <Button onClick={() => navigate('/book-appointment')}>Book New Appointment</Button>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

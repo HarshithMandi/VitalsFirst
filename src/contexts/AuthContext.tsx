@@ -1,21 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, AuthState, UserRole } from '@/types';
 import { toast } from '@/hooks/use-toast';
+import { authApi } from '@/services/api';
 
 interface AuthContextType extends AuthState {
   login: (username: string, password: string, role: UserRole) => Promise<boolean>;
   logout: () => void;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Mock users database
-const mockUsers = [
-  { id: '1', username: 'admin', password: 'admin123', role: 'administrator' as UserRole, name: 'Admin User', email: 'admin@vitalsfirst.com' },
-  { id: '2', username: 'nurse1', password: 'nurse123', role: 'nurse' as UserRole, name: 'Sarah Johnson', email: 'sarah@vitalsfirst.com' },
-  { id: '3', username: 'doctor1', password: 'doctor123', role: 'doctor' as UserRole, name: 'Dr. Michael Chen', email: 'mchen@vitalsfirst.com' },
-  { id: '4', username: 'patient1', password: 'patient123', role: 'patient' as UserRole, name: 'John Doe', email: 'john.doe@email.com' },
-];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [authState, setAuthState] = useState<AuthState>({
@@ -23,26 +17,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     token: null,
     isAuthenticated: false,
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const storedAuth = localStorage.getItem('vitalsfirst_auth');
     if (storedAuth) {
-      const parsed = JSON.parse(storedAuth);
-      setAuthState(parsed);
+      try {
+        const parsed = JSON.parse(storedAuth);
+        setAuthState(parsed);
+        
+        // Verify token is still valid
+        authApi.getCurrentUser().then(response => {
+          if (response.error) {
+            // Token is invalid, clear auth
+            localStorage.removeItem('vitalsfirst_auth');
+            setAuthState({
+              user: null,
+              token: null,
+              isAuthenticated: false,
+            });
+          }
+        });
+      } catch (error) {
+        localStorage.removeItem('vitalsfirst_auth');
+      }
     }
   }, []);
 
   const login = async (username: string, password: string, role: UserRole): Promise<boolean> => {
-    const user = mockUsers.find(
-      u => u.username === username && u.password === password && u.role === role
-    );
+    setLoading(true);
+    
+    try {
+      const response = await authApi.login(username, password, role);
+      
+      if (response.error) {
+        toast({
+          title: 'Login Failed',
+          description: response.error,
+          variant: 'destructive',
+        });
+        return false;
+      }
 
-    if (user) {
-      const { password: _, ...userWithoutPassword } = user;
-      const token = `mock_jwt_${Date.now()}_${user.id}`;
+      const { access_token, user } = response.data as any;
       const newAuthState = {
-        user: userWithoutPassword,
-        token,
+        user,
+        token: access_token,
         isAuthenticated: true,
       };
       
@@ -55,15 +75,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       
       return true;
+    } catch (error) {
+      toast({
+        title: 'Login Failed',
+        description: 'Network error. Please try again.',
+        variant: 'destructive',
+      });
+      return false;
+    } finally {
+      setLoading(false);
     }
-
-    toast({
-      title: 'Login Failed',
-      description: 'Invalid credentials. Please try again.',
-      variant: 'destructive',
-    });
-    
-    return false;
   };
 
   const logout = () => {
@@ -81,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ ...authState, login, logout }}>
+    <AuthContext.Provider value={{ ...authState, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
