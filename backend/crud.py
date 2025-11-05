@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from database import User, Patient, Appointment, TriageRecord, Alert, Priority
+from sqlalchemy import text
+from database import User, Patient, Doctor, Nurse, Appointment, TriageRecord, Alert, Priority
 from auth import get_password_hash, verify_password
 import schemas
 from typing import List, Optional
@@ -103,6 +104,234 @@ def update_patient(db: Session, patient_id: str, patient_update: schemas.Patient
         db.commit()
         db.refresh(db_patient)
     return db_patient
+
+def delete_user(db: Session, user_id: str):
+    """Permanently delete a user from the database"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        return False
+    
+    # Get user role using text query
+    role_result = db.execute(
+        text("SELECT role FROM users WHERE id = :user_id"), 
+        {"user_id": user_id}
+    ).fetchone()
+    
+    if role_result:
+        user_role = role_result[0]
+        
+        # Delete associated doctor/nurse/patient records first
+        if user_role == "doctor":
+            doctor = db.query(Doctor).filter(Doctor.user_id == user_id).first()
+            if doctor:
+                db.delete(doctor)
+        elif user_role == "nurse":
+            nurse = db.query(Nurse).filter(Nurse.user_id == user_id).first()
+            if nurse:
+                db.delete(nurse)
+        elif user_role == "patient":
+            patient = db.query(Patient).filter(Patient.user_id == user_id).first()
+            if patient:
+                db.delete(patient)
+    
+    # Delete the user record
+    db.delete(user)
+    db.commit()
+    return True
+
+def toggle_user_active_status(db: Session, user_id: str):
+    """Toggle the active status of a user account"""
+    # Get current status directly from database using text query
+    result = db.execute(
+        text("SELECT is_active FROM users WHERE id = :user_id"), 
+        {"user_id": user_id}
+    ).fetchone()
+    
+    if result:
+        current_status = result[0]
+        new_status = not current_status
+        # Toggle user active status
+        db.query(User).filter(User.id == user_id).update({"is_active": new_status})
+        db.commit()
+        return new_status
+    return None
+
+# Doctor CRUD operations
+def get_doctor(db: Session, doctor_id: str):
+    return db.query(Doctor).filter(Doctor.id == doctor_id).first()
+
+def get_doctor_by_user_id(db: Session, user_id: str):
+    return db.query(Doctor).filter(Doctor.user_id == user_id).first()
+
+def get_doctors_with_users(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(Doctor).join(User).offset(skip).limit(limit).all()
+
+def get_doctors(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(Doctor).offset(skip).limit(limit).all()
+
+def create_doctor(db: Session, doctor_data: schemas.DoctorCreate):
+    # Create user account first with provided password
+    hashed_password = get_password_hash(doctor_data.password)
+    db_user = User(
+        username=doctor_data.username,
+        email=doctor_data.email,
+        name=doctor_data.full_name,
+        phone=doctor_data.phone,
+        role="doctor",
+        hashed_password=hashed_password
+    )
+    db.add(db_user)
+    db.flush()  # Get the ID without committing
+    
+    # Create doctor profile
+    db_doctor = Doctor(
+        user_id=db_user.id,
+        specialization=doctor_data.specialization,
+        license_number=doctor_data.license_number,
+        department=doctor_data.department,
+        years_of_experience=doctor_data.years_of_experience
+    )
+    db.add(db_doctor)
+    db.commit()
+    db.refresh(db_doctor)
+    return db_doctor
+
+def update_doctor(db: Session, doctor_id: str, doctor_update: schemas.DoctorBase):
+    db_doctor = get_doctor(db, doctor_id)
+    if db_doctor:
+        for key, value in doctor_update.dict(exclude_unset=True).items():
+            setattr(db_doctor, key, value)
+        db.commit()
+        db.refresh(db_doctor)
+    return db_doctor
+
+def delete_doctor(db: Session, doctor_id: str):
+    """Permanently delete doctor and associated user from database"""
+    db_doctor = get_doctor(db, doctor_id)
+    if db_doctor:
+        user_id = str(db_doctor.user_id)
+        # Delete doctor record first (due to foreign key constraints)
+        db.delete(db_doctor)
+        # Delete associated user record
+        user = get_user(db, user_id)
+        if user:
+            db.delete(user)
+        db.commit()
+        return True
+    return False
+
+def toggle_doctor_active_status(db: Session, doctor_id: str):
+    """Toggle the active status of a doctor and their user account"""
+    db_doctor = get_doctor(db, doctor_id)
+    if db_doctor:
+        # Get current status directly from database using text query
+        result = db.execute(
+            text("SELECT is_active FROM users WHERE id = :user_id"), 
+            {"user_id": str(db_doctor.user_id)}
+        ).fetchone()
+        
+        if result:
+            current_status = result[0]
+            new_status = not current_status
+            # Toggle user active status
+            db.query(User).filter(User.id == str(db_doctor.user_id)).update({"is_active": new_status})
+            # Also toggle doctor availability
+            db.query(Doctor).filter(Doctor.id == doctor_id).update({"is_available": new_status})
+            db.commit()
+            return new_status
+    return None
+
+# Nurse CRUD operations
+def get_nurse(db: Session, nurse_id: str):
+    return db.query(Nurse).filter(Nurse.id == nurse_id).first()
+
+def get_nurse_by_user_id(db: Session, user_id: str):
+    return db.query(Nurse).filter(Nurse.user_id == user_id).first()
+
+def get_nurses_with_users(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(Nurse).join(User).offset(skip).limit(limit).all()
+
+def get_nurses(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(Nurse).offset(skip).limit(limit).all()
+
+def create_nurse(db: Session, nurse_data: schemas.NurseCreate):
+    # Create user account first with provided password
+    hashed_password = get_password_hash(nurse_data.password)
+    db_user = User(
+        username=nurse_data.username,
+        email=nurse_data.email,
+        name=nurse_data.full_name,
+        phone=nurse_data.phone,
+        role="nurse",
+        hashed_password=hashed_password
+    )
+    db.add(db_user)
+    db.flush()  # Get the ID without committing
+    
+    # Create nurse profile
+    db_nurse = Nurse(
+        user_id=db_user.id,
+        department=nurse_data.department,
+        shift=nurse_data.shift,
+        license_number=nurse_data.license_number
+    )
+    db.add(db_nurse)
+    db.commit()
+    db.refresh(db_nurse)
+    return db_nurse
+
+def update_nurse(db: Session, nurse_id: str, nurse_update: schemas.NurseBase):
+    db_nurse = get_nurse(db, nurse_id)
+    if db_nurse:
+        for key, value in nurse_update.dict(exclude_unset=True).items():
+            setattr(db_nurse, key, value)
+        db.commit()
+        db.refresh(db_nurse)
+    return db_nurse
+
+def toggle_nurse_active_status(db: Session, nurse_id: str):
+    """Toggle the active status of a nurse's user account"""
+    # Get the nurse and their user
+    nurse = db.query(Nurse).filter(Nurse.id == nurse_id).first()
+    if not nurse:
+        return None
+    
+    # Get current status directly from database using text query
+    result = db.execute(
+        text("SELECT is_active FROM users WHERE id = :user_id"), 
+        {"user_id": str(nurse.user_id)}
+    ).fetchone()
+    
+    if result:
+        current_status = result[0]
+        new_status = not current_status
+        # Toggle user active status
+        db.query(User).filter(User.id == str(nurse.user_id)).update({"is_active": new_status})
+        # Also toggle nurse availability
+        db.query(Nurse).filter(Nurse.id == nurse_id).update({"is_available": new_status})
+        db.commit()
+        return new_status
+    return None
+
+def delete_nurse(db: Session, nurse_id: str):
+    """Permanently delete a nurse from the database"""
+    # Get the nurse first
+    nurse = db.query(Nurse).filter(Nurse.id == nurse_id).first()
+    if not nurse:
+        return False
+    
+    # Get the associated user
+    user = db.query(User).filter(User.id == nurse.user_id).first()
+    
+    # Delete the nurse record first (due to foreign key)
+    db.delete(nurse)
+    
+    # Delete the user record
+    if user:
+        db.delete(user)
+    
+    db.commit()
+    return True
 
 # Appointment CRUD operations
 def get_appointment(db: Session, appointment_id: str):

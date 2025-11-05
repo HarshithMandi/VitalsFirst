@@ -50,7 +50,10 @@ const Landing = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/10 to-background flex items-center justify-center p-6">
       <div className="w-full max-w-6xl">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-primary mb-4">VitalsFirst</h1>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="text-6xl">😊</div>
+            <h1 className="text-5xl font-bold text-primary">VitalsFirst</h1>
+          </div>
           <p className="text-xl text-muted-foreground">Healthcare Patient Triage & Scheduling System</p>
           <p className="text-sm text-muted-foreground mt-2">Select your role to access the portal</p>
         </div>

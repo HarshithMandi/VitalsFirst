@@ -62,6 +62,61 @@ class Patient(PatientBase):
     class Config:
         from_attributes = True
 
+# Doctor schemas
+class DoctorBase(BaseModel):
+    specialization: Optional[str] = None
+    license_number: Optional[str] = None
+    department: Optional[str] = None
+    years_of_experience: Optional[int] = None
+    is_available: bool = True
+
+class DoctorCreate(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: str
+    phone: str
+    password: str
+    specialization: Optional[str] = None
+    license_number: Optional[str] = None
+    department: Optional[str] = None
+    years_of_experience: Optional[int] = None
+    years_of_experience: Optional[int] = None
+
+class Doctor(DoctorBase):
+    id: str
+    user_id: str
+    created_at: datetime
+    user: Optional[User] = None
+    
+    class Config:
+        from_attributes = True
+
+# Nurse schemas
+class NurseBase(BaseModel):
+    department: Optional[str] = None
+    shift: Optional[str] = None
+    license_number: Optional[str] = None
+    is_available: bool = True
+
+class NurseCreate(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: str
+    phone: str
+    password: str
+    department: Optional[str] = None
+    shift: Optional[str] = None
+    license_number: Optional[str] = None
+
+class Nurse(NurseBase):
+    id: str
+    user_id: str
+    created_at: datetime
+    user: Optional[User] = None
+    
+    class Config:
+        from_attributes = True
+
 # Priority schemas
 class PriorityBase(BaseModel):
     name: str

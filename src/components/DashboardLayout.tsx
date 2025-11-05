@@ -21,9 +21,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, titl
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-primary">VitalsFirst</h1>
-            <p className="text-sm text-muted-foreground">{title}</p>
+          <div className="flex items-center gap-3">
+            <div className="text-2xl">😊</div>
+            <div>
+              <h1 className="text-2xl font-bold text-primary">VitalsFirst</h1>
+              <p className="text-sm text-muted-foreground">{title}</p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon">

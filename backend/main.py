@@ -126,7 +126,7 @@ async def read_users(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role != "administrator":
+    if str(current_user.role) != "administrator":
         raise HTTPException(status_code=403, detail="Not enough permissions")
     users = crud.get_users(db, skip=skip, limit=limit)
     return users
@@ -137,13 +137,224 @@ async def read_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role != "administrator" and current_user.id != user_id:
+    if str(current_user.role) != "administrator" and str(current_user.id) != user_id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     db_user = crud.get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
+
+# Admin endpoints for Doctor management
+@app.post("/admin/doctors/", response_model=schemas.Doctor)
+async def create_doctor(
+    doctor_data: schemas.DoctorCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if str(current_user.role) != "administrator":
+        raise HTTPException(status_code=403, detail="Only administrators can create doctors")
+    
+    # Check if username already exists
+    existing_user = crud.get_user_by_username(db, doctor_data.username)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already exists")
+    
+    # Check if email already exists
+    existing_email = crud.get_user_by_email(db, doctor_data.email)
+    if existing_email:
+        raise HTTPException(status_code=400, detail="Email already exists")
+    
+    return crud.create_doctor(db, doctor_data)
+
+@app.get("/admin/doctors/", response_model=List[schemas.Doctor])
+async def get_doctors(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if str(current_user.role) != "administrator":
+        raise HTTPException(status_code=403, detail="Only administrators can view doctors")
+    
+    return crud.get_doctors_with_users(db, skip=skip, limit=limit)
+
+@app.delete("/admin/doctors/{doctor_id}")
+async def delete_doctor(
+    doctor_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if str(current_user.role) != "administrator":
+        raise HTTPException(status_code=403, detail="Only administrators can delete doctors")
+    
+    doctor = crud.get_doctor(db, doctor_id)
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor not found")
+    
+    result = crud.delete_doctor(db, doctor_id)
+    if result:
+        return {"message": "Doctor deleted successfully"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete doctor")
+
+@app.patch("/admin/doctors/{doctor_id}/toggle-status")
+async def toggle_doctor_status(
+    doctor_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if str(current_user.role) != "administrator":
+        raise HTTPException(status_code=403, detail="Only administrators can toggle doctor status")
+    
+    doctor = crud.get_doctor(db, doctor_id)
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor not found")
+    
+    new_status = crud.toggle_doctor_active_status(db, doctor_id)
+    if new_status is not None:
+        return {"message": f"Doctor status {'activated' if new_status else 'deactivated'} successfully", "is_active": new_status}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to toggle doctor status")
+
+# Admin endpoints for Nurse management
+@app.post("/admin/nurses/", response_model=schemas.Nurse)
+async def create_nurse(
+    nurse_data: schemas.NurseCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if str(current_user.role) != "administrator":
+        raise HTTPException(status_code=403, detail="Only administrators can create nurses")
+    
+    # Check if username already exists
+    existing_user = crud.get_user_by_username(db, nurse_data.username)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already exists")
+    
+    # Check if email already exists
+    existing_email = crud.get_user_by_email(db, nurse_data.email)
+    if existing_email:
+        raise HTTPException(status_code=400, detail="Email already exists")
+    
+    return crud.create_nurse(db, nurse_data)
+
+@app.get("/admin/nurses/", response_model=List[schemas.Nurse])
+async def get_nurses(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if str(current_user.role) != "administrator":
+        raise HTTPException(status_code=403, detail="Only administrators can view nurses")
+    
+    return crud.get_nurses_with_users(db, skip=skip, limit=limit)
+
+@app.delete("/admin/nurses/{nurse_id}")
+async def delete_nurse(
+    nurse_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if str(current_user.role) != "administrator":
+        raise HTTPException(status_code=403, detail="Only administrators can delete nurses")
+    
+    nurse = crud.get_nurse(db, nurse_id)
+    if not nurse:
+        raise HTTPException(status_code=404, detail="Nurse not found")
+    
+    result = crud.delete_nurse(db, nurse_id)
+    if result:
+        return {"message": "Nurse deleted successfully"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete nurse")
+
+@app.patch("/admin/nurses/{nurse_id}/toggle-status")
+async def toggle_nurse_status(
+    nurse_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if str(current_user.role) != "administrator":
+        raise HTTPException(status_code=403, detail="Only administrators can toggle nurse status")
+    
+    nurse = crud.get_nurse(db, nurse_id)
+    if not nurse:
+        raise HTTPException(status_code=404, detail="Nurse not found")
+    
+    new_status = crud.toggle_nurse_active_status(db, nurse_id)
+    if new_status is not None:
+        return {"message": f"Nurse status {'activated' if new_status else 'deactivated'} successfully", "is_active": new_status}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to toggle nurse status")
+
+# Admin endpoints for User management
+@app.get("/admin/users/", response_model=List[schemas.User])
+async def get_users(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if str(current_user.role) != "administrator":
+        raise HTTPException(status_code=403, detail="Only administrators can view users")
+    
+    return crud.get_users(db, skip=skip, limit=limit)
+
+@app.delete("/admin/users/{user_id}")
+async def delete_user(
+    user_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if str(current_user.role) != "administrator":
+        raise HTTPException(status_code=403, detail="Only administrators can delete users")
+    
+    user = crud.get_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Don't allow deletion of administrators
+    if str(user.role) == "administrator":
+        raise HTTPException(status_code=403, detail="Cannot delete administrator accounts")
+    
+    result = crud.delete_user(db, user_id)
+    if result:
+        return {"message": "User deleted successfully"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to delete user")
+
+@app.patch("/admin/users/{user_id}/toggle-status")
+async def toggle_user_status(
+    user_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if str(current_user.role) != "administrator":
+        raise HTTPException(status_code=403, detail="Only administrators can toggle user status")
+    
+    user = crud.get_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Don't allow deactivation of administrators
+    if str(user.role) == "administrator":
+        raise HTTPException(status_code=403, detail="Cannot deactivate administrator accounts")
+    
+    new_status = crud.toggle_user_active_status(db, user_id)
+    if new_status is not None:
+        return {"message": f"User status {'activated' if new_status else 'deactivated'} successfully", "is_active": new_status}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to toggle user status")
+
+# Get available doctors (for appointment booking)
+@app.get("/doctors/available", response_model=List[schemas.Doctor])
+async def get_available_doctors(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return crud.get_doctors_with_users(db)
 
 # Patient endpoints
 @app.get("/patients/", response_model=List[schemas.PatientDetails])
