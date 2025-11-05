@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, UserCheck, TrendingUp, Building, Calendar, FileText, AlertTriangle, User } from 'lucide-react';
+import { Users, UserCheck, TrendingUp, Building, Calendar, FileText, AlertTriangle, User, UserPlus, Settings } from 'lucide-react';
 import { appointmentsApi, patientsApi, usersApi } from '@/services/api';
 import { toast } from '@/hooks/use-toast';
 
@@ -27,6 +28,7 @@ const AdministratorDashboard = () => {
   const [patients, setPatients] = useState([]);
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadDashboardData();
@@ -129,6 +131,45 @@ const AdministratorDashboard = () => {
               </Card>
             );
           })}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/administrator/staff')}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Staff Management</p>
+                  <p className="text-lg font-semibold mt-1">Manage Doctors & Nurses</p>
+                </div>
+                <UserPlus className="w-8 h-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">System Settings</p>
+                  <p className="text-lg font-semibold mt-1">Configure System</p>
+                </div>
+                <Settings className="w-8 h-8 text-gray-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Reports</p>
+                  <p className="text-lg font-semibold mt-1">View Analytics</p>
+                </div>
+                <FileText className="w-8 h-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Appointment Management */}

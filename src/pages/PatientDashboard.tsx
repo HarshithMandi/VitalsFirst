@@ -1,11 +1,26 @@
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clock, User, Calendar, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, User, Calendar, FileText, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const PatientDashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <DashboardLayout title="Patient Dashboard">
       <div className="space-y-6">
+        {/* Book Appointment Button */}
+        <div className="flex justify-end">
+          <Button 
+            onClick={() => navigate('/book-appointment')}
+            className="flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Book New Appointment
+          </Button>
+        </div>
+
         {/* Last Visit Card */}
         <Card>
           <CardHeader>

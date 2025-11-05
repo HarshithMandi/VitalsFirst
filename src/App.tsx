@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import StaffManagement from "@/components/StaffManagement";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import PatientRegistration from "./pages/PatientRegistration";
@@ -57,6 +58,14 @@ const App = () => (
               element={
                 <ProtectedRoute allowedRoles={['administrator']}>
                   <AdministratorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/administrator/staff"
+              element={
+                <ProtectedRoute allowedRoles={['administrator']}>
+                  <StaffManagement />
                 </ProtectedRoute>
               }
             />
